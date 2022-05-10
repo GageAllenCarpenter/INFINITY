@@ -1,2 +1,0 @@
-# INFINITY
- Income Automation Application

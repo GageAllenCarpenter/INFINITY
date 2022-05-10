@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/INFINITY.iml" filepath="$PROJECT_DIR$/.idea/INFINITY.iml" />
+      <module fileurl="file://$PROJECT_DIR$/INFINITY.iml" filepath="$PROJECT_DIR$/INFINITY.iml" />
     </modules>
   </component>
 </project>

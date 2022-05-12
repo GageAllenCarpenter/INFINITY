@@ -12,10 +12,11 @@ public class Ping extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event)
     {
         Message msg = event.getMessage();
-        if (msg.getContentRaw().equals("!Ready"))
+        if (msg.getContentRaw().equals("!ping"))
         {
             MessageChannel channel = event.getChannel();
-            channel.sendMessage("Try me").queue();
+            long time = System.currentTimeMillis();
+            channel.sendMessage("Pong!").queue(response  -> response.editMessageFormat("Pong: %d ms", System.currentTimeMillis() - time).queue());
         }
     }
 }

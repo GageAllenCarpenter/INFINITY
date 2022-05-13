@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 
 public class TacticalArbitrage extends ListenerAdapter {
 
-    //Regex
-    Matcher matcher;
     //Columns in CSV
     int i = 54;
     //Path of CSV
@@ -32,6 +30,7 @@ public class TacticalArbitrage extends ListenerAdapter {
     //KEEPA
     String keepa = "keepa.png";
     EmbedBuilder keepas = new EmbedBuilder();
+
 
     /**
      * Constructor for objects of class Tactical Arbitrage
@@ -72,23 +71,38 @@ public class TacticalArbitrage extends ListenerAdapter {
                     {
                         bufferedReader.readLine();
                     }
+                    //COMPARE THE ASINS AND REMOVE DUPLICATES
+                    Set<String> ASIN = new HashSet<String>();
+                    ASIN.add(values[21]);
+                    if (ASIN.equals(ASIN))
+                    {
+                        bufferedReader.readLine();
+                    }
                     //BUILD & FORMAT PRODUCT EMBEDS
                     leads.setColor(0xa300ff);
                     leads.setTitle(values[3]);
-                    leads.setDescription("Retail -" + values[6] + "\n" + "Resell -" + values[28] + "\n" + "\n" + "Gated: ");
-                    leads.setImage("attachment://" + title);
+                    leads.addField("Retail",values[6],true);
+                    leads.addField("Resell", values[28], true);
+                    leads.addField("ASIN", values[21], false);
+                    leads.addField("Amazon URL",values[12], false);
+                    leads.addField("Retail URL",values [4], false);
+                    leads.addField("Gross Profit", values[32], false);
+                    leads.addField("Gross ROI", values[33] , false);
+
+                    //SET PRODUCT EMBED THUMBNAIL IMAGE
+                    leads.setThumbnail("attachment://" + title);
                     String productURL = values[16];
                     if (productURL.isEmpty()) {
                         productURL = defaultUrl;
                     }
                     InputStream imageStream = new URL(productURL).openStream();
-                    //SET PRODUCT EMBED THUMBNAIL IMAGE
-                    leads.setThumbnail(event.getGuild().getIconUrl());
                     //SEND PRODUCT LEAD EMBED TO SERVER
                     channel.sendMessageEmbeds(leads.build()).addFile(imageStream, title).queue();
 
                     //BUILD & FORMAT KEEPA EMBEDS
                     keepas.setColor(0xa300ff);
+                    keepas.setDescription("Sales Analysis and Keepa Chart :chart_with_upwards_trend:"
+                            + "\n" + monthlySales());
                     keepas.setImage("attachment://" + keepa);
                     String keepaURL = keepaTracker();
                     if (keepaURL.isEmpty()){
@@ -97,6 +111,8 @@ public class TacticalArbitrage extends ListenerAdapter {
                     InputStream keepaStream = new URL(keepaURL).openStream();
                     //SEND KEEPA LEAD EMBED TO SERVER
                     channel.sendMessageEmbeds(keepas.build()).addFile(keepaStream,keepa).queue();
+                    leads = new EmbedBuilder();
+                    keepas = new EmbedBuilder();
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -107,15 +123,6 @@ public class TacticalArbitrage extends ListenerAdapter {
     }
 
     /**
-     * Creates the unique Selling Applications for each asin
-     * @return String
-     */
-    public String sellingApplication()
-    {
-        return "https://sellercentral.amazon.com/hz/approvalrequest/restrictions/approve?asin=" + values[21];
-    }
-
-    /**
      * Creates a Keepa Graph to display chart information
      */
     public String keepaTracker()
@@ -123,5 +130,38 @@ public class TacticalArbitrage extends ListenerAdapter {
         return "https://api.keepa.com/graphimage?key=8nik2s5ivufk1glm0blf522hu1h7j2qb9vp1non4iggltkkvtvtfjt3pbgto7cvn&domain=1&amazon=1&new=1&used=0&salesrank=1&bb=1&fba=1&fbm=1&ld=1&wd=0&range=180&width=1000&height=500&asin=" + values[21];
     }
 
+    /**
+     * Monthly Sales selector that specifies if a product has enough sales to receive an emoji
+     * Golden Star for Sales over 100 but less than 500
+     * Rocket ship for Sales over 500
+     */
+    public String monthlySales()
+    {
+        if ( Integer.parseInt(values[42]) > 100 && Integer.parseInt(values[42]) < 500)
+        {
+            return "Monthly Sales: " + values[42] + " :star:";
+        }
+        else if (Integer.parseInt(values[42]) > 500)
+        {
+            return "Monthly Sales: " + values[42] + " :rocket:";
+        }
+        else
+        {
+            return "Monthly Sales: " + values[42];
+        }
+    }
+
+
+
+    /**
+     * Gross ROI per product selector that specifies if a product has a large enough GROSS ROI to receive an emoji
+     * Golden Start for an ROI of 100% to 200%
+     * Rocket ship for an ROI of 200% or more
+     */
+    public String grossROI()
+    {
+            return "Gross ROI: " + values[33];
+    }
 }
+
 

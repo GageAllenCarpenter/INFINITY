@@ -3,12 +3,15 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,10 +87,8 @@ public class TacticalArbitrage extends ListenerAdapter {
                     leads.addField("Retail",values[6],true);
                     leads.addField("Resell", values[28], true);
                     leads.addField("ASIN", values[21], false);
-                    leads.addField("Amazon URL",values[12], false);
-                    leads.addField("Retail URL",values [4], false);
-                    leads.addField("Gross Profit", values[32], false);
-                    leads.addField("Gross ROI", values[33] , false);
+                    leads.addField("Gross Profit", values[32], true);
+                    leads.addField("Gross ROI", values[33] , true);
 
                     //SET PRODUCT EMBED THUMBNAIL IMAGE
                     leads.setThumbnail("attachment://" + title);
@@ -110,7 +111,7 @@ public class TacticalArbitrage extends ListenerAdapter {
                     }
                     InputStream keepaStream = new URL(keepaURL).openStream();
                     //SEND KEEPA LEAD EMBED TO SERVER
-                    channel.sendMessageEmbeds(keepas.build()).addFile(keepaStream,keepa).queue();
+                    channel.sendMessageEmbeds(keepas.build()).addFile(keepaStream,keepa).setActionRow(sendButton()).queue();
                     leads = new EmbedBuilder();
                     keepas = new EmbedBuilder();
                 }
@@ -120,6 +121,30 @@ public class TacticalArbitrage extends ListenerAdapter {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     *
+     */
+    private List<Button> sendButton()
+    {
+        String amazonURL = values[12];
+        if (amazonURL.isEmpty()) {
+            amazonURL = defaultUrl;
+        }
+        String retailURL = values [4];
+        if (retailURL.isEmpty()) {
+            retailURL = defaultUrl;
+        }
+        String sellerApplicationURL = "https://sellercentral.amazon.com/hz/approvalrequest/restrictions/approve?asin="+values[21];
+        if (sellerApplicationURL.isEmpty()) {
+            sellerApplicationURL = defaultUrl;
+        }
+        List <Button> buttons = new ArrayList<>();
+        buttons.add(Button.link(amazonURL,"Amazon"));
+        buttons.add(Button.link(retailURL,"Retail"));
+        buttons.add(Button.link(sellerApplicationURL,"Seller Application"));
+        return buttons;
     }
 
     /**
@@ -150,18 +175,4 @@ public class TacticalArbitrage extends ListenerAdapter {
             return "Monthly Sales: " + values[42];
         }
     }
-
-
-
-    /**
-     * Gross ROI per product selector that specifies if a product has a large enough GROSS ROI to receive an emoji
-     * Golden Start for an ROI of 100% to 200%
-     * Rocket ship for an ROI of 200% or more
-     */
-    public String grossROI()
-    {
-            return "Gross ROI: " + values[33];
-    }
 }
-
-

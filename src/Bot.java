@@ -15,6 +15,7 @@ public class Bot extends ListenerAdapter
                 .addEventListeners(new Bot())
                 .addEventListeners(new Ping())
                 .addEventListeners(new TacticalArbitrage())
+                .addEventListeners(new Buttons())
                 //Discord Status
                 .setActivity(Activity.playing("Sleep"))
                 .build();

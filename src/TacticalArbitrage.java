@@ -29,8 +29,9 @@ public class TacticalArbitrage extends ListenerAdapter {
     //Objects needed to post images
     String title = "foo.jpg";
     String defaultUrl = "https://media.discordapp.net/attachments/945046449484361731/957307011182252113/unknown.png?width=1008&height=671";
-    //Objects to avoid duplicate posts
-
+    //KEEPA
+    String keepa = "keepa.png";
+    EmbedBuilder keepas = new EmbedBuilder();
 
     /**
      * Constructor for objects of class Tactical Arbitrage
@@ -54,14 +55,16 @@ public class TacticalArbitrage extends ListenerAdapter {
                 //READ OVER COLUMN HEADERS
                 bufferedReader.readLine();
                 // READ THE ROWS WITH PRODUCT INFORMATION
-                while ((line = bufferedReader.readLine()) != null) {
+                while ((line = bufferedReader.readLine()) != null)
+                {
                     Matcher matcher = Pattern.compile("(?<=^|,)[^,\"]*?(?=,|$)|(?<=(?:^|,)\").*?(?=\"(?:,|$))").matcher(line);
-                    for (i = 0; i < values.length; i++) {
-                        if (matcher.find()) {
+                    for (i = 0; i < values.length; i++)
+                    {
+                        if (matcher.find())
+                        {
                             values[i] = matcher.group();
                         }
                     }
-                    System.out.println(values[11]);
                     //COMPARE THE PRODUCT TITLES AND REMOVE DUPLICATES
                     Set<String> productTitles = new HashSet<String>();
                     productTitles.add(values[11]);
@@ -69,20 +72,31 @@ public class TacticalArbitrage extends ListenerAdapter {
                     {
                         bufferedReader.readLine();
                     }
-                    //BUILD & FORMAT EMBEDS
+                    //BUILD & FORMAT PRODUCT EMBEDS
                     leads.setColor(0xa300ff);
                     leads.setTitle(values[3]);
                     leads.setDescription("Retail -" + values[6] + "\n" + "Resell -" + values[28] + "\n" + "\n" + "Gated: ");
                     leads.setImage("attachment://" + title);
-                    String urlText = values[16];
-                    if (urlText.isEmpty()) {
-                        urlText = defaultUrl;
+                    String productURL = values[16];
+                    if (productURL.isEmpty()) {
+                        productURL = defaultUrl;
                     }
-
-                    InputStream imageStream = new URL(urlText).openStream();
+                    InputStream imageStream = new URL(productURL).openStream();
+                    //SET PRODUCT EMBED THUMBNAIL IMAGE
                     leads.setThumbnail(event.getGuild().getIconUrl());
-                    //Send the data to the server
+                    //SEND PRODUCT LEAD EMBED TO SERVER
                     channel.sendMessageEmbeds(leads.build()).addFile(imageStream, title).queue();
+
+                    //BUILD & FORMAT KEEPA EMBEDS
+                    keepas.setColor(0xa300ff);
+                    keepas.setImage("attachment://" + keepa);
+                    String keepaURL = keepaTracker();
+                    if (keepaURL.isEmpty()){
+                        keepaURL = defaultUrl;
+                    }
+                    InputStream keepaStream = new URL(keepaURL).openStream();
+                    //SEND KEEPA LEAD EMBED TO SERVER
+                    channel.sendMessageEmbeds(keepas.build()).addFile(keepaStream,keepa).queue();
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -101,6 +115,13 @@ public class TacticalArbitrage extends ListenerAdapter {
         return "https://sellercentral.amazon.com/hz/approvalrequest/restrictions/approve?asin=" + values[21];
     }
 
+    /**
+     * Creates a Keepa Graph to display chart information
+     */
+    public String keepaTracker()
+    {
+        return "https://api.keepa.com/graphimage?key=8nik2s5ivufk1glm0blf522hu1h7j2qb9vp1non4iggltkkvtvtfjt3pbgto7cvn&domain=1&amazon=1&new=1&used=0&salesrank=1&bb=1&fba=1&fbm=1&ld=1&wd=0&range=180&width=1000&height=500&asin=" + values[21];
+    }
 
 }
 

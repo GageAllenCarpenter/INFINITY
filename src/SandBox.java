@@ -1,3 +1,9 @@
+
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
@@ -13,8 +19,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.*;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class TacticalArbitrage extends ListenerAdapter {
+
+public class SandBox extends ListenerAdapter {
 
     //Columns in CSV
     int i = 54;
@@ -31,24 +41,29 @@ public class TacticalArbitrage extends ListenerAdapter {
     //KEEPA
     String keepa = "keepa.png";
     EmbedBuilder keepas = new EmbedBuilder();
+    EmbedBuilder validation = new EmbedBuilder();
 
-
-    /**
-     * Constructor for objects of class Tactical Arbitrage
-     * @throws FileNotFoundException
-     */
-    public TacticalArbitrage() throws IOException {
+    public SandBox() throws FileNotFoundException {
     }
 
-    /**
-     * Reading the data from the CSV file and sending it to the discord server.
-     * @param event
-     */
-    @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-        Message msg = event.getMessage();
-        if (msg.getContentRaw().equals("!Leads"))
+    public void onMessageReceived(MessageReceivedEvent event) { //Good
         {
+            //String[] args = event.getMessage().getContentRaw().split(" ");
+            List<Message.Attachment> attachments = event.getMessage().getAttachments();
+            if (attachments.isEmpty())
+            {
+                return;
+            }
+            else
+            {
+                //SEND A MESSAGE SHOWING THAT THE FILE REGISTERED
+                MessageChannel channel = event.getChannel();
+                validation.setColor(0xa300ff);
+                validation.setTitle("FILE HAS BEEN SAVED");
+                //SAVE FILE TO TACTICAL ARBITRAGE CSVs
+                int i = 0;
+                attachments.get(0).downloadToFile("Tactical Arbitrage CSVs/" + "Leads" + ".csv");
+            }
             MessageChannel channel = event.getChannel();
             try
             {
@@ -178,3 +193,5 @@ public class TacticalArbitrage extends ListenerAdapter {
         }
     }
 }
+
+

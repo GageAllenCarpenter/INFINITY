@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="JDA-5.0.0-alpha.11_f4235d1-withDependencies">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Jars/JDA-5.0.0-alpha.11_f4235d1-withDependencies.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Jars/JDA-4.4.0_352-withDependencies.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

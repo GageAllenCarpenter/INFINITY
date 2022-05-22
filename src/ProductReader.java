@@ -22,7 +22,8 @@ public class ProductReader {
 
     protected int columns = 54;
     final String path = "CSV/Leads.csv";
-    final String attachment = "INFINITY.jpg";
+    final String productAttachment = "INFINITY.jpg";
+    final String historicalDataAttachment = "HISTORY.jpg";
     final String backupAttachment = "https://media.discordapp.net/attachments/945046449484361731/957307011182252113/unknown.png?width=1008&height=671";
     private final Queue<EventData> eventDataQueue  = new ArrayDeque<>();
     private final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
@@ -33,7 +34,7 @@ public class ProductReader {
      * @throws FileNotFoundException
      */
     public ProductReader() throws FileNotFoundException {
-        service.scheduleAtFixedRate(this::processEventQueue, 0, 10, TimeUnit.SECONDS);
+        service.scheduleAtFixedRate(this::processEventQueue, 0, 5, TimeUnit.SECONDS);
     }
 
     /**
@@ -42,8 +43,6 @@ public class ProductReader {
      * @throws FileNotFoundException
      */
     public void readTacticalArbitrageCSV(MessageReceivedEvent event) throws FileNotFoundException {
-        System.out.println("readTacticalArbitrargeCSV");
-
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
             //READ OVER COLUMN HEADERS
@@ -58,6 +57,19 @@ public class ProductReader {
                         column[columns] = matcher.group();
                     }
                 }
+                //ENSURE TITLES DO NOT DUPLICATE
+                Set<String> Title = new HashSet<>();
+                if(Title.equals(Title))
+                {
+                    reader.readLine();
+                }
+                //ENSURE ASINs DO NOT DUPLICATE
+                Set<String> ASIN = new HashSet<>();
+                ASIN.add(column[21]);
+                if(ASIN.equals(ASIN))
+                {
+                    reader.readLine();
+                }
                 eventDataQueue.add(new EventData(event,column));
             }
         } catch (IOException e) {
@@ -67,8 +79,6 @@ public class ProductReader {
 
     private void processEventQueue()  {
         EventData eventData = eventDataQueue.poll();
-        System.out.println("processEventQueue");
-
         if(eventData == null)
         {
             return;
@@ -81,26 +91,31 @@ public class ProductReader {
             ie.printStackTrace();
         }
     }
-    //POST SECTION
 
     public void productPost(MessageReceivedEvent event, String[] column) throws IOException {
         EmbedBuilder products = new EmbedBuilder();
         MessageChannel productEmbed = event.getChannel();
         products.setColor(0xa300ff);
         products.setTitle(column[3]);
-        products.setThumbnail("attachment://" + attachment);
+        products.setThumbnail("attachment://" + productAttachment);
         String productURL = column[16];
         if (productURL.isEmpty()) {
             productURL = backupAttachment;
         }
-        InputStream imageStream = new URL(productURL).openStream();
+        InputStream productStream = new URL(productURL).openStream();
         products.addField("Retail", column[6],true);
         products.addField("Resell", column[27], true);
         products.addField("ASIN", column[21], false);
         products.addField("Gross Profit", column[32], true);
         products.addField("Gross ROI", column[33] , true);
-        products.addField("Sales Analysis Chart :chart_with_upwards_trend:", monthlySales(event, column), false);
-        productEmbed.sendMessageEmbeds(products.build()).addFile(imageStream, attachment).setActionRow(sendButton(event, column)).queue();
+        products.addField("Sales Analysis Chart :chart_with_upwards_trend:", monthlySales(column), false);
+        products.setImage("attachment://" + historicalDataAttachment);
+        String historicalDataURL = historicalData(column);
+        if(historicalDataURL.isEmpty()){
+            historicalDataURL = backupAttachment;
+        }
+        InputStream historicalDataStream = new URL(historicalDataURL).openStream();
+        productEmbed.sendMessageEmbeds(products.build()).addFile(productStream, productAttachment).addFile(historicalDataStream, historicalDataAttachment).setActionRow(sendButton(column)).queue();
     }
 
     /**
@@ -109,7 +124,7 @@ public class ProductReader {
      * AmazonURL - the location to create your product listing
      * Seller Application - Apply to sell this product on Amazon
      */
-    private List<Button> sendButton(MessageReceivedEvent event, String[] column)
+    private List<Button> sendButton(String[] column)
     {
         String amazonURL = column[12];
         if (amazonURL.isEmpty()) {
@@ -129,9 +144,8 @@ public class ProductReader {
         buttons.add(Button.link(sellerApplicationURL,"Seller Application").withEmoji(Emoji.fromUnicode("\uD83D\uDCDC")));
         return buttons;
     }
-    //ANALYSIS SECTION
 
-    public String monthlySales(MessageReceivedEvent event, String[] column)
+    public String monthlySales(String[] column)
     {
         try {
             if (Integer.parseInt(column[42]) > 100 && Integer.parseInt(column[42]) < 500) {
@@ -146,6 +160,14 @@ public class ProductReader {
         {
             return column[42];
         }
+    }
+
+    /**
+     * Creates a Keepa Graph to display chart information
+     */
+    public String historicalData(String[] column)
+    {
+        return "https://api.keepa.com/graphimage?key=c8tr8ocup195dsf9sgrubtqntl0v304hv4ab5p2ntbni4bhksgrfohiag0dopq5v&domain=1&amazon=1&new=1&used=0&salesrank=1&bb=1&fba=1&fbm=1&ld=1&wd=0&range=180&width=1000&height=500&asin=" + column[21];
     }
 
     private record EventData(MessageReceivedEvent event, String[] column) {}

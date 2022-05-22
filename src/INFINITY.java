@@ -21,7 +21,7 @@ public class INFINITY extends ListenerAdapter
     public static void main(String[] args) throws IOException, LoginException {
         JDA jda = JDABuilder.createDefault("OTUwNjA5MjAyNDk2Mjc4NTQ4.GFM52Q.nFQLzWhQjEgWMyrOwytFUO6Ry5ukfDVUpcnCtk")
                 .addEventListeners(new ProductAttachment())
-                .setActivity(Activity.playing("Beta Testing"))
+                .setActivity(Activity.playing("Beta V 1.00 "))
                 .build();
     }
 }

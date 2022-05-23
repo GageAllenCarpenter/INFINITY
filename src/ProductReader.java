@@ -15,22 +15,21 @@ import java.util.regex.Pattern;
 
 /**
  * Reads the CSV
- * @Author
+ * @Author Gage Carpenter
  * @Version 2
  */
 public class ProductReader {
 
-    protected int columns = 54;
-    final String path = "CSV/Leads.csv";
-    final String productAttachment = "INFINITY.jpg";
-    final String historicalDataAttachment = "HISTORY.jpg";
-    final String backupAttachment = "https://media.discordapp.net/attachments/945046449484361731/957307011182252113/unknown.png?width=1008&height=671";
+    private int columns = 54;
+    private final String path = "CSV/Leads.csv";
+    private final String productAttachment = "INFINITY.jpg";
+    private final String historicalDataAttachment = "HISTORY.jpg";
+    private final String backupAttachment = "https://cdn.discordapp.com/attachments/945046449484361731/957302568864870472/Capture-removebg-preview.png";
     private final Queue<EventData> eventDataQueue  = new ArrayDeque<>();
     private final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
 
     /**
      * Constructor for objects of class ProductReader
-     *
      * @throws FileNotFoundException
      */
     public ProductReader() throws FileNotFoundException {
@@ -38,11 +37,10 @@ public class ProductReader {
     }
 
     /**
-     * This method is called if you would like the application to read a CSV from Tactical Arbitrage
-     *
+     * Reading the CSV file and adding the data to the queue.
      * @throws FileNotFoundException
      */
-    public void readTacticalArbitrageCSV(MessageReceivedEvent event) throws FileNotFoundException {
+    public void read(MessageReceivedEvent event) throws FileNotFoundException {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
             //READ OVER COLUMN HEADERS
@@ -77,6 +75,9 @@ public class ProductReader {
         }
     }
 
+    /**
+     * Takes the event and column and processes them into a queue for product post to then post the embedded messages
+     */
     private void processEventQueue()  {
         EventData eventData = eventDataQueue.poll();
         if(eventData == null)
@@ -92,10 +93,18 @@ public class ProductReader {
         }
     }
 
+    /**
+     * Creates an Embedded Message that can then be sent to Discord
+     * The Embedded Messages contents is generated from the read method of
+     * The ProductReader class
+     * @param event
+     * @param column
+     * @throws IOException
+     */
     public void productPost(MessageReceivedEvent event, String[] column) throws IOException {
         EmbedBuilder products = new EmbedBuilder();
         MessageChannel productEmbed = event.getChannel();
-        products.setColor(0xa300ff);
+        products.setColor(0xff9900);
         products.setTitle(column[3]);
         products.setThumbnail("attachment://" + productAttachment);
         String productURL = column[16];
